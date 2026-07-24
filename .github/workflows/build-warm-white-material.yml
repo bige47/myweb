@@ -45,3 +45,5 @@ jobs:
           git add artifacts/warm_white_glossy_orange_peel.blend artifacts/warm_white_glossy_orange_peel.png artifacts/warm_white_glossy_orange_peel.blend.gz.b64 artifacts/warm_white_glossy_orange_peel.blend.sha256
           git commit -m "Build warm white Blender material [skip ci]" || exit 0
           git push
+
+# Triggered after workflow installation.
