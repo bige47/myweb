@@ -1,0 +1,47 @@
+name: Build Warm White Blender Material
+
+on:
+  push:
+    branches:
+      - chatgpt-warm-white-material-20260724
+    paths:
+      - tools/generate_warm_white_glossy_material.py
+      - .github/workflows/build-warm-white-material.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: chatgpt-warm-white-material-20260724
+
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+          blender --version
+
+      - name: Generate material file and preview
+        run: |
+          blender --background --python tools/generate_warm_white_glossy_material.py
+          test -s artifacts/warm_white_glossy_orange_peel.blend
+
+      - name: Create transferable Base64 package
+        run: |
+          gzip -c artifacts/warm_white_glossy_orange_peel.blend | base64 -w 76 > artifacts/warm_white_glossy_orange_peel.blend.gz.b64
+          sha256sum artifacts/warm_white_glossy_orange_peel.blend > artifacts/warm_white_glossy_orange_peel.blend.sha256
+
+      - name: Commit generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add artifacts/warm_white_glossy_orange_peel.blend artifacts/warm_white_glossy_orange_peel.png artifacts/warm_white_glossy_orange_peel.blend.gz.b64 artifacts/warm_white_glossy_orange_peel.blend.sha256
+          git commit -m "Build warm white Blender material [skip ci]" || exit 0
+          git push
